@@ -69,7 +69,7 @@ class AssetsSearchEngineProviderTest {
             val searchEngines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
 
             assertEquals(7, searchEngines.size)
-            assertContainsSearchEngine("google", searchEngines)
+            assertContainsSearchEngine("google-b-m", searchEngines)
             assertContainsNotSearchEngine("google-2018", searchEngines)
         }
         // With region
@@ -84,7 +84,7 @@ class AssetsSearchEngineProviderTest {
             val searchEngines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
 
             assertEquals(7, searchEngines.size)
-            assertContainsSearchEngine("google-2018", searchEngines)
+            assertContainsSearchEngine("google-b-1-m", searchEngines)
             assertContainsNotSearchEngine("google", searchEngines)
         }
     }
