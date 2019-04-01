@@ -105,6 +105,27 @@ class SearchEngineManagerTest {
         }
     }
 
+
+    @Test
+    fun `manager returns default engine as default from the provider`() {
+        runBlocking {
+            val mozSearchEngine = mockSearchEngine("mozsearch")
+            val provider = mockProvider(
+                engines = listOf(
+                    mockSearchEngine("google"),
+                    mozSearchEngine,
+                    mockSearchEngine("bing")
+                ),
+                default = mozSearchEngine
+            )
+
+            val manager = SearchEngineManager(listOf(provider))
+
+            val default = manager.getDefaultSearchEngine(RuntimeEnvironment.application)
+            assertEquals("mozsearch", default.identifier)
+        }
+    }
+    
     @Test
     fun `manager returns first engine as default if no identifier is specified`() {
         runBlocking {
@@ -259,10 +280,10 @@ class SearchEngineManagerTest {
         }
     }
 
-    private fun mockProvider(engines: List<SearchEngine>): SearchEngineProvider =
+    private fun mockProvider(engines: List<SearchEngine>, default: SearchEngine? = null): SearchEngineProvider =
             object : SearchEngineProvider {
                 override suspend fun loadSearchEngines(context: Context): SearchEngineList {
-                    return SearchEngineList(engines, null)
+                    return SearchEngineList(engines, default)
                 }
             }
 
