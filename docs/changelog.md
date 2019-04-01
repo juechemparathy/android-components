@@ -50,6 +50,10 @@ permalink: /changelog/
   * ⚠️ **This is a breaking API change!** for non-component implementations of `HistoryStorage`.
   * `HistoryStorage` got new API: `deleteVisit`.
 
+* **browser-search**
+  * Imported `list.json` and search plugins from Fennec from 2019-03-29.
+  * Added support for `searchDefault` and `searchOrder`.
+
 * **browser-storage-sync**, **browser-storage-memory**
   * Implementations of `concept-storage`/`HistoryStorage` expose newly added `deleteVisit`.
 
