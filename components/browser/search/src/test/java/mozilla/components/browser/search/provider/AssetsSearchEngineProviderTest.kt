@@ -128,22 +128,79 @@ class AssetsSearchEngineProviderTest {
     }
 
     @Test
-    fun `Load search engines for locales with additional configuration`() = runBlocking {
+    fun `Load search engines for zh-CN_CN locale with searchDefault override`() = runBlocking {
         val provider = object : SearchLocalizationProvider() {
-            override val country: String = "KZ"
-            override val language = "kk"
-            override val region: String? = "KZ"
+            override val country: String = "CN"
+            override val language = "zh"
+            override val region: String? = "CN"
         }
 
         val searchEngineProvider = AssetsSearchEngineProvider(provider)
         val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
         val searchEngines = engines.list
 
-        assertContainsSearchEngine("yandex", searchEngines)
-        assertContainsSearchEngine("wikipedia-kk", searchEngines)
+        // visibleDefaultEngines: ["google-b-m", "baidu", "bing", "taobao", "wikipedia-zh-CN"]
+        // searchOrder (default): ["Google", "Bing"]
+
+        assertEquals(
+            listOf( "google-b-m", "bing", "baidu", "taobao", "wikipedia-zh-CN"),
+            searchEngines.map { it.identifier }
+        )
+
+        // searchDefault: "百度"
+        assertEquals("baidu", engines.default?.identifier)
     }
 
-        @Test
+    @Test
+    fun `Load search engines for ru_RU locale with engines not in searchOrder`() = runBlocking {
+        val provider = object : SearchLocalizationProvider() {
+            override val country: String = ""
+            override val language = "ru"
+            override val region: String? = "RU"
+        }
+
+        val searchEngineProvider = AssetsSearchEngineProvider(provider)
+        val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+        val searchEngines = engines.list
+
+        // visibleDefaultEngines: ["google-b-m", "yandex-ru", "twitter", "wikipedia-ru"]
+        // searchOrder (default): ["Google", "Bing"]
+
+        assertEquals(
+                listOf("google-b-m", "yandex-ru", "twitter", "wikipedia-ru"),
+                searchEngines.map { it.identifier }
+        )
+
+        // searchDefault: "Яндекс"
+        assertEquals("yandex-ru", engines.default?.identifier)
+    }
+
+    @Test
+    fun `Load search engines for trs locale with non-google initial engines and no default`() = runBlocking {
+        val provider = object : SearchLocalizationProvider() {
+            override val country: String = ""
+            override val language = "trs"
+            override val region: String? = null
+        }
+
+        val searchEngineProvider = AssetsSearchEngineProvider(provider)
+        val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+        val searchEngines = engines.list
+
+        // visibleDefaultEngines: ["amazondotcom", "bing", "google-b-m", "twitter", "wikipedia-es"]
+        // searchOrder (default): ["Google", "Bing"]
+
+        assertEquals(
+                listOf("google-b-m", "bing", "amazondotcom", "twitter", "wikipedia-es"),
+                searchEngines.map { it.identifier }
+        )
+
+        // searchDefault (default): "Google"
+        assertEquals("google-b-m", engines.default?.identifier)
+    }
+
+
+    @Test
     fun `load search engines for locale not in configuration`() = runBlocking {
         val provider = object : SearchLocalizationProvider() {
             override val country: String = "XX"

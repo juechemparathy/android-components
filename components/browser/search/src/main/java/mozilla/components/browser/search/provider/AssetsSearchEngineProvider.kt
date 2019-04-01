@@ -120,8 +120,7 @@ class AssetsSearchEngineProvider(
     private fun loadAndFilterConfiguration(context: Context): SearchEngineListConfiguration {
         val config = context.assets.readJSONObject("search/list.json")
 
-        val configBlock = pickConfigurationBlock(config)
-        val configBlocks = arrayOf(configBlock, config)
+        val configBlocks = pickConfigurationBlocks(config)
         val jsonSearchEngineIdentifiers = getSearchEngineIdentifiersFromBlock(configBlocks)
 
         val searchOrder = getSearchOrderFromBlock(configBlocks)
@@ -134,10 +133,10 @@ class AssetsSearchEngineProvider(
         )
     }
 
-    private fun pickConfigurationBlock(config: JSONObject): JSONObject {
+    private fun pickConfigurationBlocks(config: JSONObject): Array<JSONObject> {
         val localesConfig = config.getJSONObject("locales")
 
-        return when {
+        val localizedConfig = when {
             // First try (Locale): locales/xx_XX/
             localesConfig.has(localizationProvider.languageTag) ->
                 localesConfig.getJSONObject(localizationProvider.languageTag)
@@ -146,9 +145,13 @@ class AssetsSearchEngineProvider(
             localesConfig.has(localizationProvider.language) ->
                 localesConfig.getJSONObject(localizationProvider.language)
 
-            // Third try: Use default
-            else -> config
+            // Give up, and fallback to defaults
+            else -> null
         }
+
+        return localizedConfig?.let {
+            arrayOf(it, config)
+        } ?: arrayOf(config)
     }
 
     private fun getSearchEngineIdentifiersFromBlock(configBlocks: Array<JSONObject>): JSONArray {
@@ -169,7 +172,7 @@ class AssetsSearchEngineProvider(
 
     private fun getStringFromBlock(key: String, blocks: Array<JSONObject>): String? =
             getValueFromBlock(blocks) {
-                it.optString(key)
+                it.optString(key, null)
             }
 
     private fun getArrayFromBlock(key: String, blocks: Array<JSONObject>): JSONArray? =
@@ -177,6 +180,15 @@ class AssetsSearchEngineProvider(
                 it.optJSONArray(key)
             }
 
+    /**
+     * This looks for a JSONObject in the config blocks it is passed that is able to be transformed
+     * into a value. It tries the permutations of locale and region specific from most specific to
+     * least specific.
+     *
+     * This has to be done on a value basis, not a configBlock basis, as the configuration for a
+     * given locale/region is not grouped into one object, but spread across the json file,
+     * according to these rules.
+     */
     private fun <T : Any> getValueFromBlock(blocks: Array<JSONObject>, transform: (JSONObject) -> T?): T? {
         val regions = arrayOf(localizationProvider.region, "default")
             .mapNotNull { it }

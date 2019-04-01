@@ -22,6 +22,14 @@ interface SearchEngineProvider {
  * specific source.
  */
 data class SearchEngineList(
+
+    /**
+     * An ordered list of search engines.
+     */
     val list: List<SearchEngine>,
-    val `default`: SearchEngine?
+
+    /**
+     * The default search engine if the user has no preference.
+     */
+    val default: SearchEngine?
 )
