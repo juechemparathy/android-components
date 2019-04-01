@@ -16,6 +16,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mozilla.components.browser.search.provider.AssetsSearchEngineProvider
+import mozilla.components.browser.search.provider.SearchEngineList
 import mozilla.components.browser.search.provider.SearchEngineProvider
 import mozilla.components.browser.search.provider.localization.LocaleSearchLocalizationProvider
 import kotlin.coroutines.CoroutineContext
@@ -83,17 +84,17 @@ class SearchEngineManager(
     }
 
     private suspend fun loadSearchEngines(context: Context): List<SearchEngine> {
-        val searchEngines = mutableListOf<SearchEngine>()
-        val deferredSearchEngines = mutableListOf<Deferred<List<SearchEngine>>>()
-
-        providers.forEach {
-            deferredSearchEngines.add(scope.async {
+        val deferredSearchEngines = providers.map {
+            scope.async {
                 it.loadSearchEngines(context)
-            })
+            }
         }
 
-        deferredSearchEngines.forEach {
-            searchEngines.addAll(it.await())
+        val searchEngineLists =
+            deferredSearchEngines.map { it.await() }
+
+        val searchEngines = searchEngineLists.fold(emptyList<SearchEngine>()) { sum, searchEngineList ->
+            sum + searchEngineList.list
         }
 
         return searchEngines

@@ -15,6 +15,7 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineContext
+import mozilla.components.browser.search.provider.SearchEngineList
 import mozilla.components.browser.search.provider.SearchEngineProvider
 import mozilla.components.support.test.argumentCaptor
 import mozilla.components.support.test.eq
@@ -260,8 +261,8 @@ class SearchEngineManagerTest {
 
     private fun mockProvider(engines: List<SearchEngine>): SearchEngineProvider =
             object : SearchEngineProvider {
-                override suspend fun loadSearchEngines(context: Context): List<SearchEngine> {
-                    return engines
+                override suspend fun loadSearchEngines(context: Context): SearchEngineList {
+                    return SearchEngineList(engines, null)
                 }
             }
 

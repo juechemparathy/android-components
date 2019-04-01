@@ -27,7 +27,8 @@ class AssetsSearchEngineProviderTest {
 
         val searchEngineProvider = AssetsSearchEngineProvider(localizationProvider)
 
-        val searchEngines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+        val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+        val searchEngines = engines.list
 
         assertEquals(6, searchEngines.size)
     }
@@ -50,7 +51,8 @@ class AssetsSearchEngineProviderTest {
 
         val searchEngineProvider = AssetsSearchEngineProvider(localizationProvider, listOf(filter))
 
-        val searchEngines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+        val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+        val searchEngines = engines.list
 
         assertEquals(4, searchEngines.size)
     }
@@ -66,7 +68,8 @@ class AssetsSearchEngineProviderTest {
             }
 
             val searchEngineProvider = AssetsSearchEngineProvider(localizationProviderWithoutRegion)
-            val searchEngines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val searchEngines = engines.list
 
             assertEquals(7, searchEngines.size)
             assertContainsSearchEngine("google-b-m", searchEngines)
@@ -81,7 +84,8 @@ class AssetsSearchEngineProviderTest {
             }
 
             val searchEngineProvider = AssetsSearchEngineProvider(localizationProviderWithRegion)
-            val searchEngines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val searchEngines = engines.list
 
             assertEquals(7, searchEngines.size)
             assertContainsSearchEngine("google-b-1-m", searchEngines)
@@ -100,7 +104,8 @@ class AssetsSearchEngineProviderTest {
             }
 
             val searchEngineProvider = AssetsSearchEngineProvider(localizationProviderWithoutRegion)
-            val searchEngines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val searchEngines = engines.list
 
             assertEquals(6, searchEngines.size)
             assertContainsNotSearchEngine("yandex-en", searchEngines)
@@ -114,7 +119,8 @@ class AssetsSearchEngineProviderTest {
             }
 
             val searchEngineProvider = AssetsSearchEngineProvider(localizationProviderWithRegion)
-            val searchEngines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val searchEngines = engines.list
 
             assertEquals(7, searchEngines.size)
             assertContainsSearchEngine("yandex-en", searchEngines)
@@ -122,6 +128,22 @@ class AssetsSearchEngineProviderTest {
     }
 
     @Test
+    fun `Load search engines for locales with additional configuration`() = runBlocking {
+        val provider = object : SearchLocalizationProvider() {
+            override val country: String = "KZ"
+            override val language = "kk"
+            override val region: String? = "KZ"
+        }
+
+        val searchEngineProvider = AssetsSearchEngineProvider(provider)
+        val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+        val searchEngines = engines.list
+
+        assertContainsSearchEngine("yandex", searchEngines)
+        assertContainsSearchEngine("wikipedia-kk", searchEngines)
+    }
+
+        @Test
     fun `load search engines for locale not in configuration`() = runBlocking {
         val provider = object : SearchLocalizationProvider() {
             override val country: String = "XX"
@@ -130,7 +152,8 @@ class AssetsSearchEngineProviderTest {
         }
 
         val searchEngineProvider = AssetsSearchEngineProvider(provider)
-        val searchEngines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val searchEngines = engines.list
 
         assertEquals(6, searchEngines.size)
     }
@@ -145,8 +168,9 @@ class AssetsSearchEngineProviderTest {
 
         // Loading "en-US" without additional identifiers
         runBlocking {
-            val provider = AssetsSearchEngineProvider(usProvider)
-            val searchEngines = provider.loadSearchEngines(RuntimeEnvironment.application)
+            val searchEngineProvider = AssetsSearchEngineProvider(usProvider)
+            val engines = searchEngineProvider.loadSearchEngines(RuntimeEnvironment.application)
+            val searchEngines = engines.list
 
             assertEquals(6, searchEngines.size)
             assertContainsNotSearchEngine("duckduckgo", searchEngines)
@@ -157,7 +181,8 @@ class AssetsSearchEngineProviderTest {
             val provider = AssetsSearchEngineProvider(
                     usProvider,
                     additionalIdentifiers = listOf("duckduckgo"))
-            val searchEngines = provider.loadSearchEngines(RuntimeEnvironment.application)
+            val engines = provider.loadSearchEngines(RuntimeEnvironment.application)
+            val searchEngines = engines.list
 
             assertEquals(7, searchEngines.size)
             assertContainsSearchEngine("duckduckgo", searchEngines)

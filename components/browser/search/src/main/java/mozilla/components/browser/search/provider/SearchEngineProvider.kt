@@ -14,5 +14,14 @@ interface SearchEngineProvider {
     /**
      * Load search engines from this provider.
      */
-    suspend fun loadSearchEngines(context: Context): List<SearchEngine>
+    suspend fun loadSearchEngines(context: Context): SearchEngineList
 }
+
+/**
+ * Data class providing an ordered list of search engines and a default search engine from a
+ * specific source.
+ */
+data class SearchEngineList(
+    val list: List<SearchEngine>,
+    val `default`: SearchEngine?
+)
