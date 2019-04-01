@@ -143,7 +143,7 @@ class AssetsSearchEngineProviderTest {
         // searchOrder (default): ["Google", "Bing"]
 
         assertEquals(
-            listOf( "google-b-m", "bing", "baidu", "taobao", "wikipedia-zh-CN"),
+            listOf("google-b-m", "bing", "baidu", "taobao", "wikipedia-zh-CN"),
             searchEngines.map { it.identifier }
         )
 
@@ -198,7 +198,6 @@ class AssetsSearchEngineProviderTest {
         // searchDefault (default): "Google"
         assertEquals("google-b-m", engines.default?.identifier)
     }
-
 
     @Test
     fun `load search engines for locale not in configuration`() = runBlocking {

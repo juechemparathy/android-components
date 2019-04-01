@@ -105,7 +105,6 @@ class SearchEngineManagerTest {
         }
     }
 
-
     @Test
     fun `manager returns default engine as default from the provider`() {
         runBlocking {
@@ -125,7 +124,7 @@ class SearchEngineManagerTest {
             assertEquals("mozsearch", default.identifier)
         }
     }
-    
+
     @Test
     fun `manager returns first engine as default if no identifier is specified`() {
         runBlocking {
